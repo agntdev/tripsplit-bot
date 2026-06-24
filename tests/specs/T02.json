@@ -1,0 +1,40 @@
+[
+  {
+    "name": "T02: /start sends the welcome and an inline main menu",
+    "steps": [
+      {
+        "send": { "text": "/start", "chatId": 1201, "userId": 5201 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": { "text": "Welcome! I am ready to help.", "reply_markup": {} }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "T02: tapping a main-menu button routes the user to that feature",
+    "steps": [
+      {
+        "send": { "callback": "menu:newtrip", "chatId": 1201, "userId": 5201 },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          { "method": "sendMessage" }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "T02: an unknown menu action is handled gracefully",
+    "steps": [
+      {
+        "send": { "callback": "menu:does-not-exist", "chatId": 1201, "userId": 5201 },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          { "method": "sendMessage" }
+        ]
+      }
+    ]
+  }
+]
