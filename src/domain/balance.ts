@@ -1,4 +1,4 @@
-import type { Balance, Expense, PaymentRecord, Trip } from "./types.js";
+import type { Balance, Expense, PaymentRecord, Transfer, Trip } from "./types.js";
 
 // Balances are always RECOMPUTED from the immutable expense + payment records —
 // never stored as a mutable running total — so the ledger can't drift. A member's
@@ -29,4 +29,39 @@ export function computeBalances(trip: Trip, expenses: Expense[], payments: Payme
     if (!trip.members.some((m) => m.id === memberId)) ordered.push({ memberId, netMinor });
   }
   return ordered;
+}
+
+/**
+ * Greedy minimal-settlement: repeatedly match the largest debtor with the largest
+ * creditor and transfer the smaller of the two magnitudes, until everyone is at
+ * zero. This produces at most (members - 1) transfers — a small, easy-to-act-on
+ * set. Sorted by amount then memberId so the suggestion is deterministic.
+ */
+export function greedySettlement(balances: Balance[]): Transfer[] {
+  const byId = (a: { memberId: string }, b: { memberId: string }) => (a.memberId < b.memberId ? -1 : a.memberId > b.memberId ? 1 : 0);
+  const debtors = balances
+    .filter((b) => b.netMinor < 0)
+    .map((b) => ({ ...b }))
+    .sort((a, b) => a.netMinor - b.netMinor || byId(a, b)); // most negative first
+  const creditors = balances
+    .filter((b) => b.netMinor > 0)
+    .map((b) => ({ ...b }))
+    .sort((a, b) => b.netMinor - a.netMinor || byId(a, b)); // most positive first
+
+  const transfers: Transfer[] = [];
+  let i = 0;
+  let j = 0;
+  while (i < debtors.length && j < creditors.length) {
+    const debtor = debtors[i]!;
+    const creditor = creditors[j]!;
+    const amount = Math.min(-debtor.netMinor, creditor.netMinor);
+    if (amount > 0) {
+      transfers.push({ fromId: debtor.memberId, toId: creditor.memberId, amountMinor: amount });
+      debtor.netMinor += amount;
+      creditor.netMinor -= amount;
+    }
+    if (debtor.netMinor === 0) i++;
+    if (creditor.netMinor === 0) j++;
+  }
+  return transfers;
 }
