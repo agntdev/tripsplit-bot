@@ -1,0 +1,96 @@
+[
+  {
+    "name": "E1T1: create a trip end to end, then reject a duplicate (persistence)",
+    "steps": [
+      {
+        "send": { "text": "/newtrip", "chatId": 10101, "userId": 70101 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "text": "Paris Trip", "chatId": 10101, "userId": 70101 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "text": "EUR", "chatId": 10101, "userId": 70101 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "text": "Alice, Bob", "chatId": 10101, "userId": 70101 },
+        "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }]
+      },
+      {
+        "send": { "callback": "newtrip:yes", "chatId": 10101, "userId": 70101 },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          { "method": "sendMessage" }
+        ]
+      },
+      {
+        "send": { "text": "/newtrip", "chatId": 10101, "userId": 70101 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "A trip is already active here: \"Paris Trip\". Use /overview to view it, or /leavetrip to step away before starting a new one."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E1T1: an invalid currency is re-prompted before the trip is created",
+    "steps": [
+      {
+        "send": { "text": "/newtrip", "chatId": 10102, "userId": 70102 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "text": "Road Trip", "chatId": 10102, "userId": 70102 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "text": "dollars", "chatId": 10102, "userId": 70102 },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "Please send a 3-letter currency code, e.g. USD." } }
+        ]
+      },
+      {
+        "send": { "text": "USD", "chatId": 10102, "userId": 70102 },
+        "expect": [{ "method": "sendMessage" }]
+      }
+    ]
+  },
+  {
+    "name": "E1T1: cancelling discards the draft (no trip persisted)",
+    "steps": [
+      {
+        "send": { "text": "/newtrip", "chatId": 10103, "userId": 70103 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "text": "Quick Trip", "chatId": 10103, "userId": 70103 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "text": "GBP", "chatId": 10103, "userId": 70103 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "text": "done", "chatId": 10103, "userId": 70103 },
+        "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }]
+      },
+      {
+        "send": { "callback": "newtrip:no", "chatId": 10103, "userId": 70103 },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          { "method": "sendMessage" }
+        ]
+      },
+      {
+        "send": { "text": "/newtrip", "chatId": 10103, "userId": 70103 },
+        "expect": [{ "method": "sendMessage" }]
+      }
+    ]
+  }
+]

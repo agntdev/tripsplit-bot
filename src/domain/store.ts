@@ -1,0 +1,29 @@
+import type { StorageAdapter } from "grammy";
+import { resolveSessionStorage } from "../toolkit/index.js";
+import type { Trip } from "./types.js";
+
+// Durable domain storage. The toolkit auto-selects Redis when REDIS_URL is set
+// (production) and falls back to its in-memory adapter otherwise (dev/test) — the
+// SAME StorageAdapter interface either way, so this is a real persistence layer,
+// not a process-local Map used as a database. Entities are namespaced by key
+// prefix; values are JSON-serialisable plain objects.
+const kv: StorageAdapter<object> = resolveSessionStorage<object>(undefined);
+
+function tripKey(chatId: number): string {
+  return `trip:${chatId}`;
+}
+
+/** The trip for a chat (v1 keeps a single trip per chat), or undefined. */
+export async function getTrip(chatId: number): Promise<Trip | undefined> {
+  return (await kv.read(tripKey(chatId))) as Trip | undefined;
+}
+
+/** The active trip for a chat, or undefined if none / archived. */
+export async function getActiveTrip(chatId: number): Promise<Trip | undefined> {
+  const trip = await getTrip(chatId);
+  return trip && trip.status === "active" ? trip : undefined;
+}
+
+export async function saveTrip(trip: Trip): Promise<void> {
+  await kv.write(tripKey(trip.chatId), trip);
+}
