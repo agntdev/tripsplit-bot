@@ -1,6 +1,6 @@
 import type { StorageAdapter } from "grammy";
 import { resolveSessionStorage } from "../toolkit/index.js";
-import type { Expense, Trip } from "./types.js";
+import type { Expense, PaymentRecord, Trip } from "./types.js";
 
 // Durable domain storage. The toolkit auto-selects Redis when REDIS_URL is set
 // (production) and falls back to its in-memory adapter otherwise (dev/test) — the
@@ -42,4 +42,18 @@ export async function addExpense(expense: Expense): Promise<void> {
   const list = await listExpenses(expense.tripId);
   list.push(expense);
   await kv.write(expensesKey(expense.tripId), list);
+}
+
+function paymentsKey(tripId: string): string {
+  return `payments:${tripId}`;
+}
+
+/** All payment records for a trip, oldest first (empty until E4 records any). */
+export async function listPayments(tripId: string): Promise<PaymentRecord[]> {
+  return ((await kv.read(paymentsKey(tripId))) as PaymentRecord[] | undefined) ?? [];
+}
+
+/** Persist the full payment list for a trip (append or status update). */
+export async function savePayments(tripId: string, payments: PaymentRecord[]): Promise<void> {
+  await kv.write(paymentsKey(tripId), payments);
 }
