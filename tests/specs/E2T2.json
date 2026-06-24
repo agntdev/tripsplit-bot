@@ -1,0 +1,89 @@
+[
+  {
+    "name": "E2T2: custom split by per-person amounts (payer covers the rest)",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 20201, "userId": 70501 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Villa", "chatId": 20201, "userId": 70501 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 20201, "userId": 70501 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Alice, Bob", "chatId": 20201, "userId": 70501 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 20201, "userId": 70501 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/expense", "chatId": 20201, "userId": 70501 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "60", "chatId": 20201, "userId": 70501 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Hotel", "chatId": 20201, "userId": 70501 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "expense:custom", "chatId": 20201, "userId": 70501 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "Alice=20, Bob=25", "chatId": 20201, "userId": 70501 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Confirm this expense?\n\n💸 60.00 USD — Hotel\nPaid by: Test\nCustom split:\n• Test: 15.00 USD\n• Alice: 20.00 USD\n• Bob: 25.00 USD",
+              "reply_markup": {}
+            }
+          }
+        ]
+      },
+      {
+        "send": { "callback": "expense:yes", "chatId": 20201, "userId": 70501 },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          { "method": "sendMessage", "payload": { "text": "✅ Logged: 60.00 USD — Hotel, paid by Test. Use /balance to see who owes whom." } }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E2T2: custom split by percentages",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 20202, "userId": 70502 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Cabin", "chatId": 20202, "userId": 70502 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 20202, "userId": 70502 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Alice, Bob", "chatId": 20202, "userId": 70502 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 20202, "userId": 70502 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/expense", "chatId": 20202, "userId": 70502 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "100", "chatId": 20202, "userId": 70502 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Lodge", "chatId": 20202, "userId": 70502 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "expense:custom", "chatId": 20202, "userId": 70502 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "Alice=40%, Bob=30%", "chatId": 20202, "userId": 70502 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Confirm this expense?\n\n💸 100.00 USD — Lodge\nPaid by: Test\nCustom split:\n• Test: 30.00 USD\n• Alice: 40.00 USD\n• Bob: 30.00 USD"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E2T2: shares over the total are rejected; unnamed members are left out",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 20203, "userId": 70503 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Trek", "chatId": 20203, "userId": 70503 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 20203, "userId": 70503 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Alice, Bob", "chatId": 20203, "userId": 70503 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 20203, "userId": 70503 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/expense", "chatId": 20203, "userId": 70503 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "50", "chatId": 20203, "userId": 70503 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Gear", "chatId": 20203, "userId": 70503 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "expense:custom", "chatId": 20203, "userId": 70503 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "Alice=60", "chatId": 20203, "userId": 70503 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "The shares add up to more than the total." } }]
+      },
+      {
+        "send": { "text": "Alice=20", "chatId": 20203, "userId": 70503 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Confirm this expense?\n\n💸 50.00 USD — Gear\nPaid by: Test\nCustom split:\n• Test: 30.00 USD\n• Alice: 20.00 USD"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
