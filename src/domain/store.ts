@@ -57,3 +57,10 @@ export async function listPayments(tripId: string): Promise<PaymentRecord[]> {
 export async function savePayments(tripId: string, payments: PaymentRecord[]): Promise<void> {
   await kv.write(paymentsKey(tripId), payments);
 }
+
+/** Append a payment record and return its 1-based seq within the trip. */
+export async function addPayment(payment: PaymentRecord): Promise<void> {
+  const list = await listPayments(payment.tripId);
+  list.push(payment);
+  await savePayments(payment.tripId, list);
+}
