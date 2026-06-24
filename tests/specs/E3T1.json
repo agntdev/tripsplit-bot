@@ -1,0 +1,43 @@
+[
+  {
+    "name": "E3T1: balances start settled and reflect a logged expense",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 30101, "userId": 70701 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Tokyo", "chatId": 30101, "userId": 70701 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 30101, "userId": 70701 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Alice, Bob", "chatId": 30101, "userId": 70701 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 30101, "userId": 70701 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/balance", "chatId": 30101, "userId": 70701 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "📊 Balances in \"Tokyo\"\n\nEveryone's settled up! 🎉" } }]
+      },
+      { "send": { "text": "/expense", "chatId": 30101, "userId": 70701 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "30", "chatId": 30101, "userId": 70701 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Dinner", "chatId": 30101, "userId": 70701 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "expense:yes", "chatId": 30101, "userId": 70701 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/balance", "chatId": 30101, "userId": 70701 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": { "text": "📊 Balances in \"Tokyo\"\n\n• Test: +20.00 USD (is owed)\n• Alice: -10.00 USD (owes)\n• Bob: -10.00 USD (owes)" }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E3T1: non-members cannot view balances",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 30102, "userId": 70702 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Oslo", "chatId": 30102, "userId": 70702 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "NOK", "chatId": 30102, "userId": 70702 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "done", "chatId": 30102, "userId": 70702 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 30102, "userId": 70702 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/balance", "chatId": 30102, "userId": 79702 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Only members of this trip can do that. Ask the organizer to add you." } }]
+      }
+    ]
+  }
+]

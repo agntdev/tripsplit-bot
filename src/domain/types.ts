@@ -55,3 +55,31 @@ export interface Trip {
   status: "active" | "archived";
   createdAt: string;
 }
+
+/** A user-declared, off-platform payment from one member to another. Only counts
+ *  toward balances once `confirmed` (the one-tap confirmation in E4). */
+export interface PaymentRecord {
+  id: string;
+  seq: number;
+  tripId: string;
+  fromId: string;
+  toId: string;
+  amountMinor: number;
+  note?: string;
+  confirmed: boolean;
+  createdAt: string;
+  confirmedAt?: string;
+}
+
+/** A member's net position: positive = owed to them, negative = they owe. */
+export interface Balance {
+  memberId: string;
+  netMinor: number;
+}
+
+/** A single suggested settlement payment (debtor -> creditor). */
+export interface Transfer {
+  fromId: string;
+  toId: string;
+  amountMinor: number;
+}
