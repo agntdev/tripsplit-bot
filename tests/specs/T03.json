@@ -1,0 +1,22 @@
+[
+  {
+    "name": "T03: /help lists the bot's commands",
+    "steps": [
+      {
+        "send": { "text": "/help", "chatId": 1301, "userId": 5301 },
+        "expect": [{ "method": "sendMessage" }]
+      }
+    ]
+  },
+  {
+    "name": "T03: unrecognised input falls through to the bot-core fallback",
+    "steps": [
+      {
+        "send": { "text": "blah blah blah", "chatId": 1301, "userId": 5301 },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "Sorry, I didn't understand that. Try /help." } }
+        ]
+      }
+    ]
+  }
+]
