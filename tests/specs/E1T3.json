@@ -1,0 +1,59 @@
+[
+  {
+    "name": "E1T3: a member can view the trip; a non-member is denied",
+    "steps": [
+      {
+        "send": { "text": "/newtrip", "chatId": 10301, "userId": 70301 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "text": "Beach Trip", "chatId": 10301, "userId": 70301 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "text": "USD", "chatId": 10301, "userId": 70301 },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "text": "done", "chatId": 10301, "userId": 70301 },
+        "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }]
+      },
+      {
+        "send": { "callback": "newtrip:yes", "chatId": 10301, "userId": 70301 },
+        "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }]
+      },
+      {
+        "send": { "text": "/trip", "chatId": 10301, "userId": 70301 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": { "text": "🧳 Beach Trip (USD)\nOrganizer: Test\n\n👥 Members (1):\n• Test" }
+          }
+        ]
+      },
+      {
+        "send": { "text": "/trip", "chatId": 10301, "userId": 79301 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": { "text": "Only members of this trip can do that. Ask the organizer to add you." }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E1T3: /trip with no active trip prompts to create one",
+    "steps": [
+      {
+        "send": { "text": "/trip", "chatId": 10302, "userId": 70302 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": { "text": "There's no active trip in this chat yet. Create one with /newtrip." }
+          }
+        ]
+      }
+    ]
+  }
+]
