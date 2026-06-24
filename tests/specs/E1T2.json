@@ -1,0 +1,64 @@
+[
+  {
+    "name": "E1T2: organizer adds then removes a member; /trip reflects active/left",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 10201, "userId": 70201 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Group Trip", "chatId": 10201, "userId": 70201 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 10201, "userId": 70201 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "done", "chatId": 10201, "userId": 70201 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 10201, "userId": 70201 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/addmember Alice, Bob", "chatId": 10201, "userId": 70201 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "✅ Added: Alice, Bob." } }]
+      },
+      {
+        "send": { "text": "/trip", "chatId": 10201, "userId": 70201 },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "🧳 Group Trip (USD)\nOrganizer: Test\n\n👥 Members (3):\n• Test\n• Alice\n• Bob" } }
+        ]
+      },
+      {
+        "send": { "text": "/removemember Alice", "chatId": 10201, "userId": 70201 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "✅ Removed Alice from the trip. Their history is kept." } }]
+      },
+      {
+        "send": { "text": "/trip", "chatId": 10201, "userId": 70201 },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "🧳 Group Trip (USD)\nOrganizer: Test\n\n👥 Members (2):\n• Test\n• Bob\n\nLeft the trip:\n• Alice" } }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E1T2: a member can leave, and is treated as a non-member afterwards",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 10202, "userId": 70202 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Squad", "chatId": 10202, "userId": 70202 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "EUR", "chatId": 10202, "userId": 70202 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "done", "chatId": 10202, "userId": 70202 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 10202, "userId": 70202 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/leavetrip", "chatId": 10202, "userId": 70202 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "✅ You've left the trip. Your past expenses are kept." } }]
+      },
+      {
+        "send": { "text": "/leavetrip", "chatId": 10202, "userId": 70202 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Only members of this trip can do that. Ask the organizer to add you." } }]
+      }
+    ]
+  },
+  {
+    "name": "E1T2: a non-member cannot manage membership",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 10203, "userId": 70203 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Trip C", "chatId": 10203, "userId": 70203 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 10203, "userId": 70203 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "done", "chatId": 10203, "userId": 70203 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 10203, "userId": 70203 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/addmember Zoe", "chatId": 10203, "userId": 79203 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Only members of this trip can do that. Ask the organizer to add you." } }]
+      }
+    ]
+  }
+]
