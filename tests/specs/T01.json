@@ -1,0 +1,22 @@
+[
+  {
+    "name": "skeleton boots: the auto-loaded /start handler replies",
+    "steps": [
+      {
+        "send": { "text": "/start" },
+        "expect": [{ "method": "sendMessage" }]
+      }
+    ]
+  },
+  {
+    "name": "unknown input falls through to the bot-core fallback",
+    "steps": [
+      {
+        "send": { "text": "zzz-not-a-command" },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "Sorry, I didn't understand that. Try /help." } }
+        ]
+      }
+    ]
+  }
+]
