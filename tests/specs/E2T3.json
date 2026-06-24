@@ -1,0 +1,47 @@
+[
+  {
+    "name": "E2T3: the expense ledger lists logged expenses with a total",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 20301, "userId": 70601 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Tokyo", "chatId": 20301, "userId": 70601 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 20301, "userId": 70601 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Alice, Bob", "chatId": 20301, "userId": 70601 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 20301, "userId": 70601 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/expenses", "chatId": 20301, "userId": 70601 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "No expenses logged yet in \"Tokyo\". Add one with /expense." } }]
+      },
+      { "send": { "text": "/expense", "chatId": 20301, "userId": 70601 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "30", "chatId": 20301, "userId": 70601 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Dinner", "chatId": 20301, "userId": 70601 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "expense:yes", "chatId": 20301, "userId": 70601 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/expense", "chatId": 20301, "userId": 70601 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "60", "chatId": 20301, "userId": 70601 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Hotel", "chatId": 20301, "userId": 70601 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "expense:yes", "chatId": 20301, "userId": 70601 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/expenses", "chatId": 20301, "userId": 70601 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": { "text": "📋 Expenses in \"Tokyo\" (2)\n\n#1 · Dinner · 30.00 USD · paid by Test\n#2 · Hotel · 60.00 USD · paid by Test\n\nTotal: 90.00 USD" }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E2T3: non-members cannot view the expense ledger",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 20302, "userId": 70602 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Lisbon", "chatId": 20302, "userId": 70602 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "EUR", "chatId": 20302, "userId": 70602 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "done", "chatId": 20302, "userId": 70602 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 20302, "userId": 70602 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/expenses", "chatId": 20302, "userId": 79602 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Only members of this trip can do that. Ask the organizer to add you." } }]
+      }
+    ]
+  }
+]
