@@ -116,6 +116,41 @@ export function formatOverview(trip: Trip, expenses: Expense[], payments: Paymen
   return lines.join("\n");
 }
 
+function csvCell(value: string): string {
+  return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
+
+function csvRow(cells: string[]): string {
+  return cells.map(csvCell).join(",");
+}
+
+/** A spreadsheet-friendly CSV of the trip's expenses (with their splits) and
+ *  payments. Amounts are currency-less numbers; the currency is its own column. */
+export function buildTripCsv(trip: Trip, expenses: Expense[], payments: PaymentRecord[]): string {
+  const rows: string[] = [csvRow(["kind", "seq", "description", "from", "to", "amount", "currency", "detail"])];
+  for (const e of expenses) {
+    const split = e.shares.map((s) => `${memberName(trip, s.memberId)}: ${formatAmountBare(s.amountMinor)}`).join("; ");
+    rows.push(
+      csvRow(["expense", String(e.seq), e.description, memberName(trip, e.payerId), "", formatAmountBare(e.amountMinor), trip.currency, split]),
+    );
+  }
+  for (const p of payments) {
+    rows.push(
+      csvRow([
+        "payment",
+        String(p.seq),
+        "",
+        memberName(trip, p.fromId),
+        memberName(trip, p.toId),
+        formatAmountBare(p.amountMinor),
+        trip.currency,
+        p.confirmed ? "confirmed" : "pending",
+      ]),
+    );
+  }
+  return `${rows.join("\n")}\n`;
+}
+
 /** The suggested minimal settlement transfers ("X pays Y N.NN CUR"). */
 export function formatSettlement(trip: Trip, transfers: Transfer[]): string {
   if (transfers.length === 0) {
