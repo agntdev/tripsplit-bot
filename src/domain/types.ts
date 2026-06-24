@@ -17,6 +17,30 @@ export interface Member {
   leftAt?: string;
 }
 
+/** One participant's portion of an expense, in integer minor units. The shares
+ *  of an expense always sum to its `amountMinor`. */
+export interface Share {
+  memberId: string;
+  amountMinor: number;
+}
+
+/** An immutable expense record. Never deleted; edits would be new audit entries. */
+export interface Expense {
+  id: string;
+  /** 1-based sequence within the trip, for stable display ordering. */
+  seq: number;
+  tripId: string;
+  /** Member who logged it. */
+  createdByMemberId: string;
+  /** Member who paid (is owed by the others). */
+  payerId: string;
+  amountMinor: number;
+  description: string;
+  splitType: "even" | "custom";
+  shares: Share[];
+  createdAt: string;
+}
+
 /** A trip lives in one chat. v1 keeps a single active trip per chat (keyed by
  *  chatId), which is what makes `id = trip-<chatId>` collision-free. */
 export interface Trip {
