@@ -1,0 +1,80 @@
+[
+  {
+    "name": "E2T1: log an expense split evenly across the members",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 20101, "userId": 70401 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Tokyo", "chatId": 20101, "userId": 70401 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 20101, "userId": 70401 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Alice, Bob", "chatId": 20101, "userId": 70401 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 20101, "userId": 70401 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/expense", "chatId": 20101, "userId": 70401 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "30", "chatId": 20101, "userId": 70401 }, "expect": [{ "method": "sendMessage" }] },
+      {
+        "send": { "text": "Dinner", "chatId": 20101, "userId": 70401 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Confirm this expense?\n\n💸 30.00 USD — Dinner\nPaid by: Test\nSplit evenly between 3:\n• Test: 10.00 USD\n• Alice: 10.00 USD\n• Bob: 10.00 USD",
+              "reply_markup": {}
+            }
+          }
+        ]
+      },
+      {
+        "send": { "callback": "expense:yes", "chatId": 20101, "userId": 70401 },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          { "method": "sendMessage", "payload": { "text": "✅ Logged: 30.00 USD — Dinner, paid by Test. Use /balance to see who owes whom." } }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E2T1: the rounding remainder is absorbed by the payer",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 20102, "userId": 70402 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Road", "chatId": 20102, "userId": 70402 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 20102, "userId": 70402 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Alice, Bob", "chatId": 20102, "userId": 70402 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 20102, "userId": 70402 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/expense", "chatId": 20102, "userId": 70402 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "10", "chatId": 20102, "userId": 70402 }, "expect": [{ "method": "sendMessage" }] },
+      {
+        "send": { "text": "Coffee", "chatId": 20102, "userId": 70402 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Confirm this expense?\n\n💸 10.00 USD — Coffee\nPaid by: Test\nSplit evenly between 3:\n• Test: 3.34 USD\n• Alice: 3.33 USD\n• Bob: 3.33 USD"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E2T1: an invalid amount is re-prompted, and the draft can be cancelled",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 20103, "userId": 70403 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Solo", "chatId": 20103, "userId": 70403 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 20103, "userId": 70403 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "done", "chatId": 20103, "userId": 70403 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 20103, "userId": 70403 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/expense", "chatId": 20103, "userId": 70403 }, "expect": [{ "method": "sendMessage" }] },
+      {
+        "send": { "text": "abc", "chatId": 20103, "userId": 70403 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Please send a positive amount, e.g. 42.50" } }]
+      },
+      { "send": { "text": "15.50", "chatId": 20103, "userId": 70403 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Snacks", "chatId": 20103, "userId": 70403 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      {
+        "send": { "callback": "expense:no", "chatId": 20103, "userId": 70403 },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          { "method": "sendMessage", "payload": { "text": "Expense discarded. Send /expense to log another." } }
+        ]
+      }
+    ]
+  }
+]
