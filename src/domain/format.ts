@@ -1,4 +1,4 @@
-import { formatAmount } from "./money.js";
+import { formatAmount, formatAmountBare } from "./money.js";
 import type { Balance, Expense, PaymentRecord, Transfer, Trip } from "./types.js";
 
 // Shared presentation helpers for trip data. Kept separate from handlers so the
@@ -71,6 +71,49 @@ export function formatPaymentList(trip: Trip, payments: PaymentRecord[]): string
     "",
     `${confirmed} confirmed, ${pending} pending.`,
   ].join("\n");
+}
+
+/** The organizer's full overview: members, every expense with its split, current
+ *  balances, and the payment history. Composes the same data the per-feature
+ *  views show, in one place. */
+export function formatOverview(trip: Trip, expenses: Expense[], payments: PaymentRecord[], balances: Balance[]): string {
+  const active = trip.members.filter((m) => m.active);
+  const lines: string[] = [
+    `📋 Overview of "${trip.name}" (${trip.currency})`,
+    `Organizer: ${memberName(trip, trip.organizerId)}`,
+    `👥 Members: ${active.map((m) => m.displayName).join(", ")}`,
+    "",
+  ];
+
+  const expTotal = expenses.reduce((acc, e) => acc + e.amountMinor, 0);
+  lines.push(`💸 Expenses (${expenses.length})${expenses.length > 0 ? ` — total ${formatAmount(expTotal, trip.currency)}` : ""}`);
+  if (expenses.length === 0) {
+    lines.push("none yet");
+  } else {
+    for (const e of expenses) {
+      lines.push(`#${e.seq} ${e.description} — ${formatAmount(e.amountMinor, trip.currency)} paid by ${memberName(trip, e.payerId)}`);
+      lines.push(`   split: ${e.shares.map((s) => `${memberName(trip, s.memberId)} ${formatAmountBare(s.amountMinor)}`).join(", ")}`);
+    }
+  }
+  lines.push("");
+
+  lines.push("📊 Balances");
+  const rows = balances.filter((b) => (trip.members.find((m) => m.id === b.memberId)?.active ?? false) || b.netMinor !== 0);
+  if (rows.every((b) => b.netMinor === 0)) {
+    lines.push("Everyone's settled up! 🎉");
+  } else {
+    for (const b of rows) lines.push(`• ${memberName(trip, b.memberId)}: ${formatNet(b.netMinor, trip.currency)}`);
+  }
+  lines.push("");
+
+  lines.push(`💳 Payments (${payments.length})`);
+  if (payments.length === 0) {
+    lines.push("none yet");
+  } else {
+    for (const p of payments) lines.push(formatPaymentLine(trip, p));
+  }
+
+  return lines.join("\n");
 }
 
 /** The suggested minimal settlement transfers ("X pays Y N.NN CUR"). */
