@@ -1,5 +1,5 @@
 import { formatAmount } from "./money.js";
-import type { Balance, Expense, Trip } from "./types.js";
+import type { Balance, Expense, Transfer, Trip } from "./types.js";
 
 // Shared presentation helpers for trip data. Kept separate from handlers so the
 // same formatting backs /expenses, /overview and any future view.
@@ -49,4 +49,18 @@ export function formatBalances(trip: Trip, balances: Balance[]): string {
     }
   }
   return lines.join("\n");
+}
+
+/** The suggested minimal settlement transfers ("X pays Y N.NN CUR"). */
+export function formatSettlement(trip: Trip, transfers: Transfer[]): string {
+  if (transfers.length === 0) {
+    return `Everyone's settled up in "${trip.name}"! 🎉`;
+  }
+  return [
+    `🤝 To settle "${trip.name}":`,
+    "",
+    ...transfers.map(
+      (t) => `• ${memberName(trip, t.fromId)} pays ${memberName(trip, t.toId)} ${formatAmount(t.amountMinor, trip.currency)}`,
+    ),
+  ].join("\n");
 }
