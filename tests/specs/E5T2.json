@@ -1,0 +1,36 @@
+[
+  {
+    "name": "E5T2: the organizer exports the trip as a CSV document",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 50201, "userId": 71201 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Tokyo", "chatId": 50201, "userId": 71201 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 50201, "userId": 71201 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Alice, Bob", "chatId": 50201, "userId": 71201 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 50201, "userId": 71201 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/expense", "chatId": 50201, "userId": 71201 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "30", "chatId": 50201, "userId": 71201 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Dinner", "chatId": 50201, "userId": 71201 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "expense:yes", "chatId": 50201, "userId": 71201 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/export", "chatId": 50201, "userId": 71201 },
+        "expect": [
+          { "method": "sendDocument", "payload": { "caption": "CSV export for \"Tokyo\" — 1 expense(s), 0 payment(s)." } }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E5T2: non-members cannot export the trip",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 50202, "userId": 71202 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Tokyo", "chatId": 50202, "userId": 71202 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 50202, "userId": 71202 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "done", "chatId": 50202, "userId": 71202 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 50202, "userId": 71202 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/export", "chatId": 50202, "userId": 79202 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Only members of this trip can do that. Ask the organizer to add you." } }]
+      }
+    ]
+  }
+]
