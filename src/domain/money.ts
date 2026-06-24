@@ -12,11 +12,16 @@ export function parseAmount(input: string): number | null {
   return whole * 100 + Number.parseInt(frac, 10);
 }
 
-/** Format minor units as "12.50 USD". */
-export function formatAmount(minor: number, currency: string): string {
+/** Format minor units without a currency suffix, e.g. "12.50". */
+export function formatAmountBare(minor: number): string {
   const sign = minor < 0 ? "-" : "";
   const abs = Math.abs(minor);
-  return `${sign}${Math.floor(abs / 100)}.${String(abs % 100).padStart(2, "0")} ${currency}`;
+  return `${sign}${Math.floor(abs / 100)}.${String(abs % 100).padStart(2, "0")}`;
+}
+
+/** Format minor units as "12.50 USD". */
+export function formatAmount(minor: number, currency: string): string {
+  return `${formatAmountBare(minor)} ${currency}`;
 }
 
 /**

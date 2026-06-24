@@ -1,0 +1,41 @@
+[
+  {
+    "name": "E5T1: the organizer sees a full overview",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 50101, "userId": 71101 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Tokyo", "chatId": 50101, "userId": 71101 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 50101, "userId": 71101 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Alice, Bob", "chatId": 50101, "userId": 71101 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 50101, "userId": 71101 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/expense", "chatId": 50101, "userId": 71101 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "30", "chatId": 50101, "userId": 71101 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Dinner", "chatId": 50101, "userId": 71101 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "expense:yes", "chatId": 50101, "userId": 71101 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/overview", "chatId": 50101, "userId": 71101 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "📋 Overview of \"Tokyo\" (USD)\nOrganizer: Test\n👥 Members: Test, Alice, Bob\n\n💸 Expenses (1) — total 30.00 USD\n#1 Dinner — 30.00 USD paid by Test\n   split: Test 10.00, Alice 10.00, Bob 10.00\n\n📊 Balances\n• Test: +20.00 USD (is owed)\n• Alice: -10.00 USD (owes)\n• Bob: -10.00 USD (owes)\n\n💳 Payments (0)\nnone yet"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E5T1: non-members cannot view the overview",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 50102, "userId": 71102 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Tokyo", "chatId": 50102, "userId": 71102 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 50102, "userId": 71102 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "done", "chatId": 50102, "userId": 71102 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 50102, "userId": 71102 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/overview", "chatId": 50102, "userId": 79102 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Only members of this trip can do that. Ask the organizer to add you." } }]
+      }
+    ]
+  }
+]
