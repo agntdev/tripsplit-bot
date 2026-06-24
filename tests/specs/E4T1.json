@@ -1,0 +1,84 @@
+[
+  {
+    "name": "E4T1: record a confirmed payment that settles a debt",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 40101, "userId": 70901 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Tokyo", "chatId": 40101, "userId": 70901 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 40101, "userId": 70901 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Alice, Bob", "chatId": 40101, "userId": 70901 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 40101, "userId": 70901 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/expense", "chatId": 40101, "userId": 70901 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "30", "chatId": 40101, "userId": 70901 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Dinner", "chatId": 40101, "userId": 70901 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "expense:yes", "chatId": 40101, "userId": 70901 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/paid", "chatId": 40101, "userId": 70901 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "paywith:n:alice", "chatId": 40101, "userId": 70901 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "paydir:in", "chatId": 40101, "userId": 70901 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "10", "chatId": 40101, "userId": 70901 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Confirm: Alice paid you 10.00 USD?", "reply_markup": {} } }]
+      },
+      {
+        "send": { "callback": "pay:confirm", "chatId": 40101, "userId": 70901 },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          { "method": "sendMessage", "payload": { "text": "✅ Recorded: Alice paid you 10.00 USD. Use /balance to see the update." } }
+        ]
+      },
+      {
+        "send": { "text": "/balance", "chatId": 40101, "userId": 70901 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": { "text": "📊 Balances in \"Tokyo\"\n\n• Test: +10.00 USD (is owed)\n• Alice: settled up\n• Bob: -10.00 USD (owes)" }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E4T1: cancelling a payment leaves balances unchanged",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 40102, "userId": 70902 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Tokyo", "chatId": 40102, "userId": 70902 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 40102, "userId": 70902 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Alice, Bob", "chatId": 40102, "userId": 70902 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 40102, "userId": 70902 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/expense", "chatId": 40102, "userId": 70902 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "30", "chatId": 40102, "userId": 70902 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Dinner", "chatId": 40102, "userId": 70902 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "expense:yes", "chatId": 40102, "userId": 70902 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/paid", "chatId": 40102, "userId": 70902 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "paywith:n:alice", "chatId": 40102, "userId": 70902 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "callback": "paydir:in", "chatId": 40102, "userId": 70902 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "10", "chatId": 40102, "userId": 70902 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      {
+        "send": { "callback": "pay:cancel", "chatId": 40102, "userId": 70902 },
+        "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage", "payload": { "text": "Payment discarded." } }]
+      },
+      {
+        "send": { "text": "/balance", "chatId": 40102, "userId": 70902 },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": { "text": "📊 Balances in \"Tokyo\"\n\n• Test: +20.00 USD (is owed)\n• Alice: -10.00 USD (owes)\n• Bob: -10.00 USD (owes)" }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E4T1: non-members cannot record payments",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 40103, "userId": 70903 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Tokyo", "chatId": 40103, "userId": 70903 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 40103, "userId": 70903 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "done", "chatId": 40103, "userId": 70903 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 40103, "userId": 70903 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/paid", "chatId": 40103, "userId": 79903 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Only members of this trip can do that. Ask the organizer to add you." } }]
+      }
+    ]
+  }
+]
