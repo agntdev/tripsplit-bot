@@ -1,5 +1,5 @@
 import { formatAmount } from "./money.js";
-import type { Balance, Expense, Transfer, Trip } from "./types.js";
+import type { Balance, Expense, PaymentRecord, Transfer, Trip } from "./types.js";
 
 // Shared presentation helpers for trip data. Kept separate from handlers so the
 // same formatting backs /expenses, /overview and any future view.
@@ -49,6 +49,28 @@ export function formatBalances(trip: Trip, balances: Balance[]): string {
     }
   }
   return lines.join("\n");
+}
+
+/** One payment line: "✅ Alice → Test 10.00 USD" (⏳ while unconfirmed). */
+export function formatPaymentLine(trip: Trip, p: PaymentRecord): string {
+  const status = p.confirmed ? "✅" : "⏳";
+  return `${status} ${memberName(trip, p.fromId)} → ${memberName(trip, p.toId)} ${formatAmount(p.amountMinor, trip.currency)}`;
+}
+
+/** The trip's payment history with a confirmed/pending tally. */
+export function formatPaymentList(trip: Trip, payments: PaymentRecord[]): string {
+  if (payments.length === 0) {
+    return `No payments recorded yet in "${trip.name}". Use /paid once someone settles up.`;
+  }
+  const confirmed = payments.filter((p) => p.confirmed).length;
+  const pending = payments.length - confirmed;
+  return [
+    `💳 Payments in "${trip.name}" (${payments.length})`,
+    "",
+    ...payments.map((p) => formatPaymentLine(trip, p)),
+    "",
+    `${confirmed} confirmed, ${pending} pending.`,
+  ].join("\n");
 }
 
 /** The suggested minimal settlement transfers ("X pays Y N.NN CUR"). */

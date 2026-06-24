@@ -3,8 +3,10 @@ import type { Ctx } from "../bot.js";
 import { inlineButton, inlineKeyboard, menuKeyboard } from "../toolkit/index.js";
 import { clearFlow, getFlow, setFlow } from "../domain/flow.js";
 import { requireTripMember } from "../domain/permissions.js";
-import { addPayment, listPayments, savePayments } from "../domain/store.js";
+import { addPayment, listExpenses, listPayments, savePayments } from "../domain/store.js";
 import { formatAmount, parseAmount } from "../domain/money.js";
+import { computeBalances } from "../domain/balance.js";
+import { formatBalances } from "../domain/format.js";
 import type { Member, PaymentRecord, Trip } from "../domain/types.js";
 
 const composer = new Composer<Ctx>();
@@ -146,6 +148,9 @@ composer.callbackQuery("pay:confirm", async (ctx) => {
       ? `${data.otherName} paid you ${formatAmount(data.amountMinor ?? 0, tc.trip.currency)}`
       : `you paid ${data.otherName} ${formatAmount(data.amountMinor ?? 0, tc.trip.currency)}`;
   await ctx.reply(`✅ Recorded: ${phrase}. Use /balance to see the update.`);
+  // Surface the balance adjustment right away (E4T2).
+  const expenses = await listExpenses(tc.trip.id);
+  await ctx.reply(formatBalances(tc.trip, computeBalances(tc.trip, expenses, payments)));
 });
 
 composer.callbackQuery("pay:cancel", async (ctx) => {

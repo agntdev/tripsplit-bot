@@ -1,0 +1,80 @@
+[
+  {
+    "name": "E4T2: confirming a payment adjusts balances and lands in /payments",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 40201, "userId": 71001 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Tokyo", "chatId": 40201, "userId": 71001 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 40201, "userId": 71001 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Alice, Bob", "chatId": 40201, "userId": 71001 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 40201, "userId": 71001 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/expense", "chatId": 40201, "userId": 71001 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "30", "chatId": 40201, "userId": 71001 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Dinner", "chatId": 40201, "userId": 71001 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "expense:yes", "chatId": 40201, "userId": 71001 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/payments", "chatId": 40201, "userId": 71001 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "No payments recorded yet in \"Tokyo\". Use /paid once someone settles up." } }]
+      },
+      { "send": { "text": "/paid", "chatId": 40201, "userId": 71001 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "paywith:n:alice", "chatId": 40201, "userId": 71001 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "callback": "paydir:in", "chatId": 40201, "userId": 71001 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "10", "chatId": 40201, "userId": 71001 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      {
+        "send": { "callback": "pay:confirm", "chatId": 40201, "userId": 71001 },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          { "method": "sendMessage", "payload": { "text": "✅ Recorded: Alice paid you 10.00 USD. Use /balance to see the update." } },
+          { "method": "sendMessage", "payload": { "text": "📊 Balances in \"Tokyo\"\n\n• Test: +10.00 USD (is owed)\n• Alice: settled up\n• Bob: -10.00 USD (owes)" } }
+        ]
+      },
+      {
+        "send": { "text": "/payments", "chatId": 40201, "userId": 71001 },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "💳 Payments in \"Tokyo\" (1)\n\n✅ Alice → Test 10.00 USD\n\n1 confirmed, 0 pending." } }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E4T2: an unconfirmed payment shows as pending and does not move balances",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 40202, "userId": 71002 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Tokyo", "chatId": 40202, "userId": 71002 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 40202, "userId": 71002 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Alice, Bob", "chatId": 40202, "userId": 71002 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 40202, "userId": 71002 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/expense", "chatId": 40202, "userId": 71002 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "30", "chatId": 40202, "userId": 71002 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Dinner", "chatId": 40202, "userId": 71002 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "expense:yes", "chatId": 40202, "userId": 71002 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "/paid", "chatId": 40202, "userId": 71002 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "paywith:n:alice", "chatId": 40202, "userId": 71002 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "callback": "paydir:in", "chatId": 40202, "userId": 71002 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      { "send": { "text": "10", "chatId": 40202, "userId": 71002 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      {
+        "send": { "text": "/payments", "chatId": 40202, "userId": 71002 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "💳 Payments in \"Tokyo\" (1)\n\n⏳ Alice → Test 10.00 USD\n\n0 confirmed, 1 pending." } }]
+      },
+      {
+        "send": { "text": "/balance", "chatId": 40202, "userId": 71002 },
+        "expect": [
+          { "method": "sendMessage", "payload": { "text": "📊 Balances in \"Tokyo\"\n\n• Test: +20.00 USD (is owed)\n• Alice: -10.00 USD (owes)\n• Bob: -10.00 USD (owes)" } }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "E4T2: non-members cannot view payments",
+    "steps": [
+      { "send": { "text": "/newtrip", "chatId": 40203, "userId": 71003 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "Tokyo", "chatId": 40203, "userId": 71003 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "USD", "chatId": 40203, "userId": 71003 }, "expect": [{ "method": "sendMessage" }] },
+      { "send": { "text": "done", "chatId": 40203, "userId": 71003 }, "expect": [{ "method": "sendMessage", "payload": { "reply_markup": {} } }] },
+      { "send": { "callback": "newtrip:yes", "chatId": 40203, "userId": 71003 }, "expect": [{ "method": "answerCallbackQuery" }, { "method": "sendMessage" }] },
+      {
+        "send": { "text": "/payments", "chatId": 40203, "userId": 79903 },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Only members of this trip can do that. Ask the organizer to add you." } }]
+      }
+    ]
+  }
+]
